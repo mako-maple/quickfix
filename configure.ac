@@ -358,6 +358,7 @@ AC_CONFIG_FILES([
     examples/executor/C++/Makefile
     examples/ordermatch/Makefile
     examples/ordermatch/test/Makefile
+    examples/client/Makefile
     examples/tradeclient/Makefile
     examples/tradeclientgui/Makefile
     examples/tradeclientgui/banzai/Makefile
