@@ -1,14 +1,15 @@
-noinst_PROGRAMS = tradeclient
+noinst_PROGRAMS = client
 
-tradeclient_SOURCES = \
-	tradeclient.cpp \
+client_SOURCES = \
+	client.cpp \
+	1_TestRequest.cpp \
 	Application.h \
 	Application.cpp
 
-tradeclient_LDADD = $(top_builddir)/src/C++/libquickfix.la 
+client_LDADD = $(top_builddir)/src/C++/libquickfix.la
 
 INCLUDES = -I$(top_builddir)/include -I..
 
 all-local:
-	rm -f ../../bin/tradeclient
-	ln -s ../examples/tradeclient/tradeclient ../../bin/tradeclient
+	rm -f ../../bin/client
+	ln -s ../examples/client/client ../../bin/client
