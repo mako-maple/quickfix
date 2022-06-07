@@ -3,17 +3,21 @@
 #ifndef EXAMPLES_CLIENT_APPLICATION_H_
 #define EXAMPLES_CLIENT_APPLICATION_H_
 
+#include <cmath>
+
 #include "quickfix/Application.h"
 #include "quickfix/MessageCracker.h"
 #include "quickfix/Values.h"
 #include "quickfix/Mutex.h"
 
 // server -> client
-#include "quickfix/fix44/SecurityList.h" // < y >
+#include "quickfix/fix44/SecurityList.h"                  // < y >
+#include "quickfix/fix44/MarketDataSnapshotFullRefresh.h" // < W >
 
 // client -> server
 #include "quickfix/fix44/TestRequest.h"         // < 1 >
 #include "quickfix/fix44/SecurityListRequest.h" // < x >
+#include "quickfix/fix44/MarketDataRequest.h"   // < V >
 
 // const
 const char SessionTypeQUOTE[] = "QUOTE";
@@ -48,17 +52,20 @@ private:
   // --------- --------- --------- --------- --------- --------- ---------
   // server -> client
   /* y  */ void onMessage(const FIX44::SecurityList &, const FIX::SessionID &);
+  /* W  */ void onMessage(const FIX44::MarketDataSnapshotFullRefresh &, const FIX::SessionID &);
 
   // --------- --------- --------- --------- --------- --------- ---------
   // client -> server
   /* 1  */ void TestRequest();
   /* x  */ void SecurityListRequest();
+  /* V  */ void MarketDataRequest(/* 55  symbol */ std::string);
 
   // --------- --------- --------- --------- --------- --------- ---------
   // tool
   void SetMessageHeader(FIX::Message &);
   std::string getSetting(const char *, const char *defvalue = "");
   std::string getCnt();
+  std::string getUTCTimeStr();
 };
 
 #endif // EXAMPLES_CLIENT_APPLICATION_H_

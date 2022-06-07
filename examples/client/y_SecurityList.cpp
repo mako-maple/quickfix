@@ -71,12 +71,14 @@ void Application::onMessage(const FIX44::SecurityList &message, const FIX::Sessi
                   << " [" << symbol_name << "] not found in the list." << std::endl;
         exit(0);
     }
-    else
-    {
+    
+    /* show Trade Target */
         std::cout << std::endl
                   << "[Trade Target]" << std::endl
                   << "\tID: " << SYMBOL_ID << "\t " << SYMBOL_NAME << "  digit(" << SYMBOL_DIGIT << ")" << std::endl
                   << std::endl
                   << std::endl;
-    }
+    
+    /* Market Data Request */
+    MarketDataRequest(SYMBOL_ID);
 }

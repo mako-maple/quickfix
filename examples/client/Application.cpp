@@ -121,3 +121,35 @@ std::string Application::getCnt()
 {
     return std::to_string(++cnt);
 }
+
+// Get UTC Time String
+std::string Application::getUTCTimeStr()
+{
+    struct timespec ts;
+    struct tm t;
+
+    // Get epoch time
+    int ret;
+    ret = clock_gettime(CLOCK_REALTIME, &ts);
+    if (ret < 0)
+        return "";
+
+    // Convert into local and parsed time
+    gmtime_r(&ts.tv_sec, &t);
+
+    // Create string with strftime
+    char buf[32] = "yyyy/mm/dd hh:mm:ss.000";
+    ret = strftime(buf, 32, "%Y/%m/%d %H:%M:%S", &t);
+    if (ret < 0)
+        return "";
+
+    // Add milli-seconds with snprintf
+    char output[32];
+    const int msec = ts.tv_nsec / 1000000;
+    ret = snprintf(output, 32, "%s.%03d", buf, msec);
+    if (ret < 0)
+        return buf;
+
+    // Result
+    return output;
+}

@@ -2,9 +2,11 @@ noinst_PROGRAMS = client
 
 client_SOURCES = \
 	client.cpp \
+	1_TestRequest.cpp \
 	x_SecurityListRequest.cpp \
 	y_SecurityList.cpp \
-	1_TestRequest.cpp \
+	V_MarketDataRequest.cpp \
+	W_MarketDataIncrementalRefresh.cpp \
 	Application.h \
 	Application.cpp
 
