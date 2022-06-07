@@ -1,6 +1,9 @@
-#include "Application.h"
+/* -*- C++ -*- */
 
-/* MsgType = 1  */
+#include "Application.h"
+#include "quickfix/Session.h"
+
+/* <1>  */
 void Application::TestRequest()
 {
   FIX44::TestRequest message;

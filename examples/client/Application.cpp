@@ -14,6 +14,11 @@ void Application::onLogon(const FIX::SessionID &sessionID)
               << "TARGET   :" << sessionID.getTargetCompID() << std::endl
               << "QUALIFIER:" << sessionID.getSessionQualifier() << std::endl
               << std::endl;
+
+    if (SessionTypeQUOTE == sessionID.getSessionQualifier())
+    {
+        SecurityListRequest();
+    }
 }
 
 void Application::onLogout(const FIX::SessionID &sessionID)
@@ -109,4 +114,10 @@ std::string Application::getSetting(const char *key, const char *defvalue)
     if (dic.has(key))
         return dic.getString(key);
     return defvalue;
+}
+
+// Get Counter
+std::string Application::getCnt()
+{
+    return std::to_string(++cnt);
 }

@@ -1535,5 +1535,7 @@ namespace FIX
   DEFINE_INT(StreamAsgnAckType);
   DEFINE_UTCTIMESTAMP(RelSymTransactTime);
   DEFINE_INT(StreamAsgnType);
+  DEFINE_INT(SymbolName);   // spotware
+  DEFINE_STRING(SymbolDigits);    // spotware
 }
 #endif //FIX_FIELDS_H

@@ -2,6 +2,8 @@ noinst_PROGRAMS = client
 
 client_SOURCES = \
 	client.cpp \
+	x_SecurityListRequest.cpp \
+	y_SecurityList.cpp \
 	1_TestRequest.cpp \
 	Application.h \
 	Application.cpp
