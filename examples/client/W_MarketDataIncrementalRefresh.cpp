@@ -39,6 +39,12 @@ void Application::onMessage(const FIX44::MarketDataSnapshotFullRefresh &message,
         }
     }
 
+    /* store MarketData */
+    Market market(ask, bid, SYMBOL_DIGIT);
+    markets.push_back(market);
+    if (markets.size() > HISTORY)
+        markets.pop_front();
+
     /* Show MarketData */
     std::cout
         << getUTCTimeStr()
@@ -49,11 +55,52 @@ void Application::onMessage(const FIX44::MarketDataSnapshotFullRefresh &message,
         << bid
         << " "
         << std::setprecision(0) << std::setw(5) << std::right
-        << (ask - bid) * std::pow(10.0, SYMBOL_DIGIT)
+        << market.spread
         << "   "
         << std::setprecision(SYMBOL_DIGIT) << std::setw(9) << std::right
-        << ask
+        << ask;
+
+    // 注文カウント中はカウントを出力
+    if (ORDER_COUNT > 0)
+    {
+        std::cout
+            << "  ("
+            << ORDER_COUNT
+            << ")  ";
+    }
+
+    // 注文後は差pipを出力
+    else if (ORDER_PX != 0.0)
+    {
+        std::cout
+            << "  : "
+            << std::setprecision(0) << std::setw(5) << std::right
+            << (ORDER_SIDE == "1" ? /* BUY  */ bid - ORDER_PX : /* SELL */ ORDER_PX - ask) * std::pow(10.0, SYMBOL_DIGIT)
+            << " "
+            << std::fixed << std::setprecision(SYMBOL_DIGIT) << std::setw(7) << std::right
+            << (ORDER_SIDE == "1" ? /* BUY  */ "∧" : /* SELL */ "∨")
+            << "  "
+            << ORDER_PX;
+    }
+
+    std::cout
         << std::endl;
+
+    /* 注文判定 - カウントダウンが終わったら発注 */
+    if (ORDER_COUNT > 0)
+    {
+        ORDER_COUNT--;
+        if (ORDER_COUNT == 0)
+        {
+
+            ORDER_PX = (ORDER_SIDE == "1" ? /* BUY */ ask : /* SELL */ bid);
+            NewOrderSingle(
+                /*  54 */ *ORDER_SIDE.c_str(),
+                /*  38 */ SIZE,
+                /*  40 */ FIX::OrdType_LIMIT,
+                /*  44 */ ORDER_PX);
+        }
+    }
 }
 
 /* :: FIX44-CSERVER.xml

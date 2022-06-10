@@ -1,4 +1,5 @@
 /* -*- C++ -*- */
+#include <thread>
 
 #include "Application.h"
 
@@ -15,7 +16,9 @@ void Application::onLogon(const FIX::SessionID &sessionID)
               << "QUALIFIER:" << sessionID.getSessionQualifier() << std::endl
               << std::endl;
 
-    if (SessionTypeQUOTE == sessionID.getSessionQualifier())
+    // ２セッションともにログオン済みなら「対象通貨一覧」を取得
+    sessionCount++;
+    if (sessionCount == 2)
     {
         SecurityListRequest();
     }
@@ -25,6 +28,13 @@ void Application::onLogout(const FIX::SessionID &sessionID)
 {
     std::cout << std::endl
               << "Logout - " << sessionID << std::endl;
+
+    // セッション数はマイナスにはしない
+    sessionCount--;
+    if (sessionCount < 0)
+    {
+        sessionCount = 0;
+    }
 }
 
 void Application::fromApp(const FIX::Message &message, const FIX::SessionID &sessionID)
@@ -84,6 +94,9 @@ void Application::run()
             char action;
             std::cout << std::endl
                       << "1) TestRequest" << std::endl
+                      << "d) New Order" << std::endl
+                      << "M) Market Data" << std::endl
+                      << std::endl
                       << "q) Quit" << std::endl
                       << "Action: " << std::endl;
             std::cin >> action;
@@ -92,6 +105,10 @@ void Application::run()
                 break;
             else if (action == '1')
                 TestRequest();
+            else if (action == 'd')
+                setNewOrder();
+            else if (action == 'M')
+                checkMarketStatus();
         }
         catch (std::exception &e)
         {
@@ -119,7 +136,7 @@ std::string Application::getSetting(const char *key, const char *defvalue)
 // Get Counter
 std::string Application::getCnt()
 {
-    return std::to_string(++cnt);
+    return std::to_string(++id_cnt);
 }
 
 // Get UTC Time String
@@ -152,4 +169,61 @@ std::string Application::getUTCTimeStr()
 
     // Result
     return output;
+}
+
+// New Order 準備
+void Application::setNewOrder()
+{
+    // Order 可能？ 取引中ならIDが設定済みのハズ
+    if (ORDER_ID != "")
+    {
+        std::cout << std::endl
+                  << "取引中のため新規注文できません。" << std::endl;
+        return;
+    }
+
+    // Order 待ち状態？ カウントダウン状態なら何もしない
+    if (ORDER_COUNT > 0)
+    {
+        std::cout << std::endl
+                  << "注文カウントダウン中のため新規注文できません。" << std::endl;
+        return;
+    }
+
+    // ナノ秒取得
+    struct timespec ts;
+    clock_gettime(CLOCK_REALTIME, &ts);
+
+    // 待ち時間？待ちTick？を設定 - 取得したナノ秒からカウントダウン数を設定
+    ORDER_COUNT = ts.tv_nsec / 10000000;
+
+    // 方向設定（買、売） - 取得したナノ秒の偶数奇数により方向を設定
+    ORDER_SIDE = (ts.tv_nsec / 1000000 % 2 == 0 ? "1" /* Side_BUY */ : "2" /* Side_SELL */);
+
+    // クリア
+    STOP_ID = "";
+    SETTL_ID = "";
+
+    // 設定表示
+    std::cout << "set New Order [" << (ORDER_SIDE == "1" ? /* BUY  */ "∧" : /* SELL */ "∨") << "]  count[" << ORDER_COUNT << "]" << std::endl;
+    return;
+}
+
+// Market 状態確認
+bool Application::checkMarketStatus()
+{
+    auto st = markets.begin();
+    auto ed = markets.end();
+    --ed;
+
+    int sec = std::chrono::duration_cast<std::chrono::seconds>(ed->tm - st->tm).count();
+    std::cout << " SEC: " << sec << std::endl;
+
+    for (auto itr = markets.begin(); itr != markets.end(); ++itr)
+    {
+        std::time_t time_stamp = std::chrono::system_clock::to_time_t(itr->tm);
+        std::cout << " " << itr->bid << " " << itr->spread << " " << itr->ask << " " << std::ctime(&time_stamp) << " " << itr->tm.time_since_epoch().count() - st->tm.time_since_epoch().count() << std::endl; // std::ctime(&time_stamp);
+    }
+
+    return true;
 }

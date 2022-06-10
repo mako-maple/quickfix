@@ -7,6 +7,8 @@ client_SOURCES = \
 	y_SecurityList.cpp \
 	V_MarketDataRequest.cpp \
 	W_MarketDataIncrementalRefresh.cpp \
+	D_NewOrderSingle.cpp \
+	8_ExecutionReport.cpp \
 	Application.h \
 	Application.cpp
 
