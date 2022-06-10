@@ -41,9 +41,9 @@ void Application::onMessage(const FIX44::MarketDataSnapshotFullRefresh &message,
 
     /* store MarketData */
     Market market(ask, bid, SYMBOL_DIGIT);
-    markets.push_back(market);
-    if (markets.size() > HISTORY)
-        markets.pop_front();
+    markets.push_back(market); // 末尾に追加
+    if ((int)markets.size() > HISTORY)
+        markets.pop_front(); // 最大数を超えてたら最古を削除
 
     /* Show MarketData */
     std::cout
@@ -88,11 +88,11 @@ void Application::onMessage(const FIX44::MarketDataSnapshotFullRefresh &message,
 
     /* 注文判定 - カウントダウンが終わったら発注 */
     if (ORDER_COUNT > 0)
-    {
         ORDER_COUNT--;
-        if (ORDER_COUNT == 0)
+    if (ORDER_COUNT == 0)
+    {
+        if (checkMarketStatus())
         {
-
             ORDER_PX = (ORDER_SIDE == "1" ? /* BUY */ ask : /* SELL */ bid);
             NewOrderSingle(
                 /*  54 */ *ORDER_SIDE.c_str(),

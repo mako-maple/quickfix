@@ -24,10 +24,10 @@ void Application::NewOrderSingle(
     /* 40  */ message.set(FIX::OrdType(type));
     /* 494 */ message.set(FIX::Designation(orderID));
 
+    // Set Price
     if (type == FIX::OrdType_STOP)
     {
         /* 99  */ message.set(FIX::StopPx(px));
-        STOP_ID = orderID;
     }
     else
     {
@@ -50,16 +50,20 @@ void Application::NewOrderSingle(
         /* 59  */ message.set(FIX::TimeInForce(FIX::TimeInForce_GOOD_TILL_DATE));
         /* 126 */ message.set(FIX::ExpireTime(FIX::UtcTimeStamp(tim, 0)));
         ORDER_ID = orderID;
+        SETTL_ID = "";
+        STOP_ID = "";
     }
     else
     {
         /* 59  */ message.set(FIX::TimeInForce(FIX::TimeInForce_GOOD_TILL_CANCEL));
         /* 721 */ message.set(FIX::PosMaintRptID(ORDER_POS_ID));
         std::string s = std::string() + side;
-        if (ORDER_SIDE.compare(s)) 
+        if (type == FIX::OrdType_STOP)
         {
-            // 同一方向ならSTOP
-        }else{
+            STOP_ID = orderID;
+        }
+        else
+        {
             SETTL_ID = orderID;
         }
     }
@@ -69,11 +73,12 @@ void Application::NewOrderSingle(
     FIX::Session::sendToTarget(message, SessionTypeTRADE);
 
     // log
-    std::cout << "--- < D > ---- NewOrderSingle --------" << std::endl;
+    std::cout << std::endl
+              << "--- < D > ---- NewOrderSingle --------" << std::endl;
     std::cout
         << "  ID " << orderID
         << "  Side " << (side == FIX::Side_BUY ? "BUY" : "SELL")
-        << "  Type " << (type == FIX::OrdType_LIMIT ? "LIMIT" : "STOP")
+        << "  Type " << (type == FIX::OrdType_STOP ? "StopOrder" : (SETTL_ID == "" ? "NewOrder" : "SettlOrder"))
         << "  Qty " << qty
         << "  Px " << px
         << std::endl;

@@ -1,6 +1,4 @@
 /* -*- C++ -*- */
-#include <thread>
-
 #include "Application.h"
 
 #include "quickfix/Session.h"
@@ -43,7 +41,8 @@ void Application::fromApp(const FIX::Message &message, const FIX::SessionID &ses
     crack(message, sessionID);
 }
 
-void Application::toApp(FIX::Message &message, const FIX::SessionID &sessionID) EXCEPT(FIX::DoNotSend)
+void Application::toApp(FIX::Message &message, const FIX::SessionID &sessionID)
+    EXCEPT(FIX::DoNotSend)
 {
     try
     {
@@ -198,32 +197,66 @@ void Application::setNewOrder()
     ORDER_COUNT = ts.tv_nsec / 10000000;
 
     // 方向設定（買、売） - 取得したナノ秒の偶数奇数により方向を設定
-    ORDER_SIDE = (ts.tv_nsec / 1000000 % 2 == 0 ? "1" /* Side_BUY */ : "2" /* Side_SELL */);
+    ORDER_SIDE = (ts.tv_nsec / 1000000 % 2 == 0 ? "1" /* Side_BUY */
+                                                : "2" /* Side_SELL */);
 
     // クリア
     STOP_ID = "";
     SETTL_ID = "";
 
     // 設定表示
-    std::cout << "set New Order [" << (ORDER_SIDE == "1" ? /* BUY  */ "∧" : /* SELL */ "∨") << "]  count[" << ORDER_COUNT << "]" << std::endl;
+    std::cout << "set New Order ["
+              << (ORDER_SIDE == "1" ? /* BUY  */ "∧" : /* SELL */ "∨")
+              << "]  count[" << ORDER_COUNT << "]" << std::endl;
     return;
 }
 
 // Market 状態確認
 bool Application::checkMarketStatus()
 {
-    auto st = markets.begin();
-    auto ed = markets.end();
-    --ed;
-
-    int sec = std::chrono::duration_cast<std::chrono::seconds>(ed->tm - st->tm).count();
-    std::cout << " SEC: " << sec << std::endl;
-
-    for (auto itr = markets.begin(); itr != markets.end(); ++itr)
+    // 履歴数が足りなければ対象外
+    if ((int)markets.size() < HISTORY)
     {
-        std::time_t time_stamp = std::chrono::system_clock::to_time_t(itr->tm);
-        std::cout << " " << itr->bid << " " << itr->spread << " " << itr->ask << " " << std::ctime(&time_stamp) << " " << itr->tm.time_since_epoch().count() - st->tm.time_since_epoch().count() << std::endl; // std::ctime(&time_stamp);
+        return false;
     }
 
+    // 履歴の秒差確認（設定値よりも時間がかかってたら対象外）（マーケットが閑散としてる）
+    auto st = markets.begin();
+    auto ed = markets.end();
+    --ed; // .end() は最後じゃない？
+    int sec = std::chrono::duration_cast<std::chrono::seconds>(ed->tm - st->tm).count();
+    std::cout << " SEC: " << sec << std::endl;
+    if (sec > HISTSEC)
+    {
+        return false;
+    }
+
+    // 履歴のSpread差確認（設定値よりも大きかったら対象外）（マーケットが荒れている）
+    int spread = 0;
+    for (auto itr = markets.begin(); itr != markets.end(); ++itr)
+    {
+        /* DEBUG
+            std::time_t time_stamp = std::chrono::system_clock::to_time_t(itr->tm);
+            std::cout << "\t"
+                    << itr->bid << " "
+                    << itr->spread << " "
+                    << itr->ask << "\t"
+                    << std::chrono::duration_cast<std::chrono::seconds>(itr->tm - st->tm).count() << "\t"
+                    << std::put_time(std::localtime(&time_stamp), "%Y-%m-%d %H:%M:%S")
+                    << std::endl; // std::ctime(&time_stamp);
+        */
+        spread += itr->spread;
+    }
+    int sp = std::ceil((double)spread / (double)markets.size());
+    /* DEBUG
+        std::cout << std::endl
+              << " - spread: " << spread << "  count:" << markets.size() << " = " << sp << std::endl;
+    */
+    if (sp > SPREAD)
+    {
+        return false;
+    }
+
+    // 履歴確認ＯＫ
     return true;
 }

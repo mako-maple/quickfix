@@ -59,60 +59,34 @@ void Application::onMessage(const FIX44::ExecutionReport &message, const FIX::Se
     // ExecType String
     std::string ExecType = "Unknown";
     if (execType.getString() == "0")
-    {
         ExecType = "New";
-    }
     else if (execType.getString() == "4")
-    {
         ExecType = "Cancelled";
-    }
     else if (execType.getString() == "5")
-    {
         ExecType = "Replace";
-    }
     else if (execType.getString() == "8")
-    {
         ExecType = "Rejected";
-    }
     else if (execType.getString() == "C")
-    {
         ExecType = "Expired";
-    }
     else if (execType.getString() == "F")
-    {
         ExecType = "Trade";
-    }
     else if (execType.getString() == "I")
-    {
         ExecType = "Order Status";
-    }
 
     // OrderStatus String
     std::string OrderStatus = "Unknown";
     if (ordStatus.getString() == "0")
-    {
         OrderStatus = "New";
-    }
     else if (ordStatus.getString() == "1")
-    {
         OrderStatus = "Partially filled";
-    }
     else if (ordStatus.getString() == "2")
-    {
         OrderStatus = "Filled";
-    }
     else if (ordStatus.getString() == "8")
-    {
         OrderStatus = "Rejected";
-    }
     else if (ordStatus.getString() == "4")
-    {
         OrderStatus = "Cancelled";
-    }
     else if (ordStatus.getString() == "C")
-    {
         OrderStatus = "Expired";
-    }
 
     // log
     std::cout << "--- < 8 > ---- ExecutionReport --------" << std::endl;
@@ -141,7 +115,15 @@ void Application::onMessage(const FIX44::ExecutionReport &message, const FIX::Se
         << "  721 PosMaintRptID  : " << posMaintRptID << std::endl
         << "  584 MassStatusReqID: " << massStatusReqID << std::endl
         << std::endl;
+
+    // 時間切れの場合 :: 再度カウントダウンから
+    if ((execType.getString() == "C") && (ordStatus.getString() == "C"))
+    {
+        ORDER_ID = "";
+        setNewOrder();
+    }
 }
+
 /* 150 ExecType
                 0 = New;           ExecType_NEW
                 4 = Canceled;      ExecType_CANCELLED
