@@ -66,3 +66,5 @@ core
 \#*#
 *.log
 *.trs
+.vscode
+.vscode/*

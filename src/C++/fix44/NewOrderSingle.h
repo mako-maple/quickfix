@@ -283,6 +283,7 @@ namespace FIX44
     FIELD_SET(*this, FIX::EffectiveTime);
     FIELD_SET(*this, FIX::ExpireDate);
     FIELD_SET(*this, FIX::ExpireTime);
+    FIELD_SET(*this, FIX::PosMaintRptID);  // spotware
     FIELD_SET(*this, FIX::GTBookingInst);
     FIELD_SET(*this, FIX::Commission);
     FIELD_SET(*this, FIX::CommType);
