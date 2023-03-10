@@ -14,10 +14,22 @@ void Application::onLogon(const FIX::SessionID &sessionID) {
               << "TARGET   :" << sessionID.getTargetCompID() << std::endl
               << "QUALIFIER:" << sessionID.getSessionQualifier() << std::endl
               << std::endl;
+
+    // ２セッションともにログオン済みなら「対象通貨一覧」を取得
+    sessionCount++;
+    if (sessionCount == 2) {
+        SecurityListRequest();
+    }
 }
 
 void Application::onLogout(const FIX::SessionID &sessionID) {
     std::cout << std::endl << "Logout - " << sessionID << std::endl;
+
+    // セッション数はマイナスにはしない
+    sessionCount--;
+    if (sessionCount < 0) {
+        sessionCount = 0;
+    }
 }
 
 void Application::fromApp(const FIX::Message &message, const FIX::SessionID &sessionID)
@@ -91,3 +103,6 @@ std::string Application::getSetting(const char *key, const char *defvalue) {
     if (dic.has(key)) return dic.getString(key);
     return defvalue;
 }
+
+// Get Counter
+std::string Application::getCnt() { return std::to_string(++id_cnt); }

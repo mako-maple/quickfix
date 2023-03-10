@@ -17,8 +17,12 @@
 const char SessionTypeQUOTE[] = "QUOTE";
 const char SessionTypeTRADE[] = "TRADE";
 
+// server -> client
+#include "quickfix/fix44/SecurityList.h"  // < y >
+
 // client -> server
-#include "quickfix/fix44/TestRequest.h"  // < 1 >
+#include "quickfix/fix44/SecurityListRequest.h"  // < x >
+#include "quickfix/fix44/TestRequest.h"          // < 1 >
 
 class Application : public FIX::Application, public FIX::MessageCracker {
 public:
@@ -28,6 +32,8 @@ public:
 
 private:
     FIX::SessionSettings m_settings;
+    int sessionCount = 0;  // ２セッション無いと取引しないためのカウンタ（Quote、Trade）
+    int id_cnt       = 0;  // 通信時に利用するIDカウンタ
 
     void onCreate(const FIX::SessionID &) {}
     void onLogon(const FIX::SessionID &sessionID);
@@ -40,13 +46,19 @@ private:
         EXCEPT(FIX::FieldNotFound, FIX::IncorrectDataFormat, FIX::IncorrectTagValue, FIX::UnsupportedMessageType);
 
     // --------- --------- --------- --------- --------- --------- ---------
+    // server -> client
+    /* y  */ void onMessage(const FIX44::SecurityList &, const FIX::SessionID &);
+
+    // --------- --------- --------- --------- --------- --------- ---------
     // client -> server
     /* 1  */ void TestRequest();
+    /* x  */ void SecurityListRequest();
 
     // --------- --------- --------- --------- --------- --------- ---------
     // tool
     void SetMessageHeader(FIX::Message &);
     std::string getSetting(const char *, const char *defvalue = "");
+    std::string getCnt();
 };
 
 #endif
