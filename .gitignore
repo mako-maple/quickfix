@@ -43,6 +43,10 @@ examples/executor/C++/executor
 examples/ordermatch/ordermatch
 examples/ordermatch/test/ordermatch_ut
 examples/tradeclient/tradeclient
+examples/client/client
+examples/client/client.cfg
+examples/client/log/*
+examples/client/store/*
 include/
 src/at
 src/pt

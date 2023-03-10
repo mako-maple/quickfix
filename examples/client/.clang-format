@@ -1,0 +1,12 @@
+BasedOnStyle:  Google 
+
+# ここから自分の好みのオプションを指定する
+# -- https://blog.takuchalle.dev/post/2018/04/26/setup_clang_format/
+IndentWidth:     4
+Language:        Cpp
+Standard:        c++17
+TabWidth:        4
+UseTab:          Never
+AccessModifierOffset: -4
+ColumnLimit:     120
+AlignConsecutiveAssignments: true

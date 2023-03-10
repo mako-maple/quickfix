@@ -9,7 +9,7 @@
 
     Quick instructions:
         ./bootstrap
-        ./configure
+        ./configure  --with-openssl
         make
         make check
         sudo make install
