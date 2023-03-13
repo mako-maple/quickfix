@@ -12,3 +12,11 @@ void Application::SecurityListRequest() {
     SetMessageHeader(message);
     FIX::Session::sendToTarget(message, SessionTypeQUOTE);
 }
+    
+/* :: FIX44-CSERVER.xml
+    <message name="SecurityListRequest" msgtype="x" msgcat="app">
+        <field name="SecurityReqID" required="Y"/>
+        <field name="SecurityListRequestType" required="Y"/>
+        <component name="Instrument" required="N"/>
+    </message>
+*/

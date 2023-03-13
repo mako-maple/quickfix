@@ -5,6 +5,8 @@ client_SOURCES = \
 	1_TestRequest.cpp \
   x_SecurityListRequest.cpp \
   y_SecurityList.cpp \
+	V_MarketDataRequest.cpp \
+  W_MarketDataIncrementalRefresh.cpp \
 	Application.h \
 	Application.cpp
 
