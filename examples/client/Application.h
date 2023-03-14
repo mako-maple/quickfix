@@ -8,6 +8,7 @@
 #include <list>
 #include <string>
 
+#include "./Market.h"
 #include "quickfix/Application.h"
 #include "quickfix/MessageCracker.h"
 #include "quickfix/Mutex.h"
@@ -31,6 +32,7 @@ public:
     Application(const FIX::SessionSettings &settings) : m_settings(settings) {
         // 設定値読み込み - 設定が無ければデフォルト値をセット
         SYMBOL_NAME = getSetting("SYMBOL", "JPYUSD");
+        HISTORY     = std::stol(getSetting("HISTORY", "10"));
     }
 
     void run();
@@ -45,6 +47,13 @@ private:
     std::string SYMBOL_ID   = "";  // 取引対象通貨のcTrader用ID
     std::string SYMBOL_NAME = "";  // 取引対象通貨の名称
 
+    // 設定値
+    unsigned int HISTORY = 0;  // 保持するマーケット情報履歴数
+
+    // 市場情報保持用
+    std::list<Market> markets;
+
+    // FIX
     void onCreate(const FIX::SessionID &) {}
     void onLogon(const FIX::SessionID &sessionID);
     void onLogout(const FIX::SessionID &sessionID);
@@ -71,6 +80,7 @@ private:
     void SetMessageHeader(FIX::Message &);
     std::string getSetting(const char *, const char *defvalue = "");
     std::string getCnt();
+    void showMarketStatus();
 };
 
 #endif

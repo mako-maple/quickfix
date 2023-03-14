@@ -77,12 +77,16 @@ void Application::run() {
             std::cout << std::endl
                       << "1) TestRequest" << std::endl
                       << std::endl
+                      << "m) Markt List" << std::endl
+                      << std::endl
                       << "q) Quit" << std::endl
                       << "Action: " << std::endl;
             std::cin >> action;
 
             if (action == 'q')
                 break;
+            else if (action == 'm')
+                showMarketStatus();
             else if (action == '1')
                 TestRequest();
         } catch (std::exception &e) {
@@ -106,3 +110,28 @@ std::string Application::getSetting(const char *key, const char *defvalue) {
 
 // Get Counter
 std::string Application::getCnt() { return std::to_string(++id_cnt); }
+
+// Market状態表示
+void Application::showMarketStatus() {
+    auto st = markets.begin();
+    auto ed = markets.end();
+    --ed;
+
+    // 履歴の開始～終了の秒差を取得
+    int sec = std::chrono::duration_cast<std::chrono::seconds>(ed->tp - st->tp).count();
+    std::cout << std::endl << "SEC : " << sec << "   " << std::endl;
+
+    // 履歴を表示
+    for (auto itr = markets.begin(); itr != markets.end(); ++itr) {
+        std::cout
+            << std::put_time(itr->tm, "%H:%M:%S")
+            << " (" << std::chrono::duration_cast<std::chrono::seconds>(itr->tp - st->tp).count() << ")  : "
+            << itr->bid
+            << " " << std::setprecision(0) << std::setw(5) << std::right
+            << itr->spread
+            << " " << std::fixed << std::setprecision(SYMBOL_DIGIT) << std::setw(9) << std::right
+            << itr->ask
+            << std::endl;
+            //<< "  " << std::ctime(&itr->t);
+    }
+}

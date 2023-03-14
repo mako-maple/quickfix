@@ -35,18 +35,25 @@ void Application::onMessage(const FIX44::MarketDataSnapshotFullRefresh &message,
         }
     }
 
+    // マーケット情報を保持（最大保持数を超えたら古いのを捨てる）
+    Market market(ask, bid, SYMBOL_DIGIT);
+    markets.push_back(market);
+    if ((unsigned int)markets.size() > HISTORY) {
+        markets.pop_front();
+    }
+
     /* Show MarketData */
-    std::cout << respDateTime 
-              << "   " 
-              << std::fixed 
+    std::cout << respDateTime
+              << "   "
+              << std::fixed
               << std::setprecision(SYMBOL_DIGIT) << std::setw(9) << std::right
-              << bid 
-              << " " 
-              << std::setprecision(0) << std::setw(5) << std::right 
+              << bid
+              << " "
+              << std::setprecision(0) << std::setw(5) << std::right
               << (ask - bid) * std::pow(10.0, SYMBOL_DIGIT)
               << "   "
-              << std::setprecision(SYMBOL_DIGIT) << std::setw(9) << std::right 
-              << ask 
+              << std::setprecision(SYMBOL_DIGIT) << std::setw(9) << std::right
+              << ask
               << std::endl;
 }
 
