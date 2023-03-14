@@ -86,7 +86,7 @@ void Application::run() {
             if (action == 'q')
                 break;
             else if (action == 'm')
-                showMarketStatus();
+                showMarketHistory();
             else if (action == '1')
                 TestRequest();
         } catch (std::exception &e) {
@@ -112,7 +112,7 @@ std::string Application::getSetting(const char *key, const char *defvalue) {
 std::string Application::getCnt() { return std::to_string(++id_cnt); }
 
 // Market状態表示
-void Application::showMarketStatus() {
+void Application::showMarketHistory() {
     auto st = markets.begin();
     auto ed = markets.end();
     --ed;
@@ -133,5 +133,44 @@ void Application::showMarketStatus() {
             << itr->ask
             << std::endl;
             //<< "  " << std::ctime(&itr->t);
+    }
+}
+
+// Market状態確認：履歴の秒差と平均値幅(SPREAD) が設定値内であればTrue、以外はFalse
+bool Application::checkMarketHistory() {
+    auto st = markets.begin();
+    auto ed = markets.end();
+    --ed;
+
+    showMarketHistory();
+
+    // 履歴の開始～終了の秒差を取得
+    unsigned int sec = std::chrono::duration_cast<std::chrono::seconds>(ed->tp - st->tp).count();
+    std::cout << "----- 秒差 : " << sec << " > HISTSEC(" << HISTSEC << ") " << std::endl;
+    if (sec > HISTSEC) {
+        std::cout << "----- 秒差 false " << std::endl << std::endl;
+        return false;
+    }
+    std::cout << "----- 秒差 true " << std::endl << std::endl;
+
+    // SPREAD 平均計算 - 端数切捨て
+    int sum = 0;
+    for (auto itr = markets.begin(); itr != markets.end(); ++itr) {
+        sum += itr->spread;
+    }
+    std::cout << "----- 平均値幅 : " << sum << " / " << markets.size() << " = " ;
+    if (markets.size() > 0 and sum > 0) {
+        std::cout << (sum / markets.size()) << " <= SPREAD(" << SPREAD << ")" << std::endl;
+        if ((sum / markets.size()) <= SPREAD) {
+            std::cout << "----- 平均値幅 true " << std::endl << std::endl;
+            return true;
+        } else {
+            std::cout << "----- 平均値幅 false " << std::endl << std::endl;
+            return false;
+        }
+    }
+    else {
+        std::cout << " ０除算" << std::endl << "----- 平均値幅 false " << std::endl << std::endl;
+        return false;
     }
 }

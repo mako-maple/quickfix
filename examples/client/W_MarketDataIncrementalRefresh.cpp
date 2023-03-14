@@ -54,7 +54,26 @@ void Application::onMessage(const FIX44::MarketDataSnapshotFullRefresh &message,
               << "   "
               << std::setprecision(SYMBOL_DIGIT) << std::setw(9) << std::right
               << ask
+              << "  "
+              << waitCount
               << std::endl;
+
+    // カウンタ設定：未設定の場合は市場情報取得時のミリ秒部分を設定
+    if (status == StatusNone) {
+        status               = StatusCount;  // ステータスを「カウント中」へ
+        std::string resptime = respDateTime.getString();
+        // waitCount            = std::stoi(resptime.substr(resptime.length() - 3, 3));
+        waitCount = std::stoi(resptime.substr(resptime.length() - 2, 2));
+    }
+
+    // カウンタ設定：カウント中はマイナス。　０になったら。。未設定へ
+    if (status == StatusCount) {
+        waitCount--;
+        if (waitCount <= 0) {
+            status = StatusNone;
+            checkMarketHistory();
+        }
+    }
 }
 
 /* :: FIX44-CSERVER.xml
