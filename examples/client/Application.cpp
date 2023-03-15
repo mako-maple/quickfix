@@ -123,6 +123,7 @@ void Application::showMarketHistory() {
 
     // 履歴を表示
     for (auto itr = markets.begin(); itr != markets.end(); ++itr) {
+        auto millisec = std::chrono::duration_cast<std::chrono::milliseconds>(itr->tp.time_since_epoch()).count();
         std::cout
             << std::put_time(itr->tm, "%H:%M:%S")
             << " (" << std::chrono::duration_cast<std::chrono::seconds>(itr->tp - st->tp).count() << ")  : "
@@ -131,6 +132,7 @@ void Application::showMarketHistory() {
             << itr->spread
             << " " << std::fixed << std::setprecision(SYMBOL_DIGIT) << std::setw(9) << std::right
             << itr->ask
+            << "  " << millisec << " ( " << (millisec % 2 == 0 ? "=0 BUY" : "<>0 SELL") << " )"
             << std::endl;
             //<< "  " << std::ctime(&itr->t);
     }
@@ -158,7 +160,7 @@ bool Application::checkMarketHistory() {
     for (auto itr = markets.begin(); itr != markets.end(); ++itr) {
         sum += itr->spread;
     }
-    std::cout << "----- 平均値幅 : " << sum << " / " << markets.size() << " = " ;
+    std::cout << "----- 平均値幅 : " << sum << " / " << markets.size() << " = ";
     if (markets.size() > 0 and sum > 0) {
         std::cout << (sum / markets.size()) << " <= SPREAD(" << SPREAD << ")" << std::endl;
         if ((sum / markets.size()) <= SPREAD) {
@@ -168,9 +170,23 @@ bool Application::checkMarketHistory() {
             std::cout << "----- 平均値幅 false " << std::endl << std::endl;
             return false;
         }
-    }
-    else {
+    } else {
         std::cout << " ０除算" << std::endl << "----- 平均値幅 false " << std::endl << std::endl;
         return false;
     }
+}
+
+// 新規注文
+void Application::newOrder() {
+    // SIDE 注文方向（売り、買い） :: 市場情報取得のミリ秒の偶数奇数で決定
+    auto ed = markets.end();
+    --ed;
+    auto millisec   = std::chrono::duration_cast<std::chrono::milliseconds>(ed->tp.time_since_epoch()).count();
+    const char side = (millisec % 2 == 0 ? FIX::Side_BUY : FIX::Side_SELL);
+
+    // Px 指値 :: 市場情報の価格を設定（方向意識）
+    const double px = (side == '1' ? ed->ask : ed->bid);
+
+    // 注文
+    NewOrderSingle(side, SIZE, FIX::OrdType_LIMIT, px);
 }
