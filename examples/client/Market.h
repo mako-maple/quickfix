@@ -8,8 +8,8 @@ public:
         spread = (ask * std::pow(10.0, digit)) - (bid * std::pow(10.0, digit));  // 売買差計算
         tp     = std::chrono::system_clock::now();                               // 市場情報取得時間記録
         t      = std::chrono::system_clock::to_time_t(tp);
-        //tm     = std::gmtime(&t);
-        tm     = std::localtime(&t);
+        // tm     = std::gmtime(&t);
+        tm = std::localtime(&t);
     }
 
     double ask = 0.0;                          // 買 - 買うときの値段

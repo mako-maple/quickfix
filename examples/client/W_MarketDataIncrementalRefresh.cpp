@@ -71,7 +71,7 @@ void Application::onMessage(const FIX44::MarketDataSnapshotFullRefresh &message,
         waitCount--;
         if (waitCount <= 0) {
             status = StatusNone;
-            if (checkMarketHistory() ) {
+            if (checkMarketHistory()) {
                 newOrder();
             }
         }

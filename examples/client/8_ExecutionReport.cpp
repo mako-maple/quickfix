@@ -4,8 +4,7 @@
 #include "quickfix/Session.h"
 
 /* 8  */
-void Application::onMessage(const FIX44::ExecutionReport &message, const FIX::SessionID &sessionID)
-{
+void Application::onMessage(const FIX44::ExecutionReport &message, const FIX::SessionID &sessionID) {
     /* INIT Message Data */
     /* 37   */ FIX::FieldBase orderID(FIX::FIELD::OrderID, "");
     /* 41   */ FIX::FieldBase origClOrdID(FIX::FIELD::OrigClOrdID, "");
@@ -58,89 +57,64 @@ void Application::onMessage(const FIX44::ExecutionReport &message, const FIX::Se
 
     // ExecType String
     std::string ExecType = "Unknown";
-    if (execType.getString() == "0")
-    {
+    if (execType.getString() == "0") {
         ExecType = "New";
-    }
-    else if (execType.getString() == "4")
-    {
+    } else if (execType.getString() == "4") {
         ExecType = "Cancelled";
-    }
-    else if (execType.getString() == "5")
-    {
+    } else if (execType.getString() == "5") {
         ExecType = "Replace";
-    }
-    else if (execType.getString() == "8")
-    {
+    } else if (execType.getString() == "8") {
         ExecType = "Rejected";
-    }
-    else if (execType.getString() == "C")
-    {
+    } else if (execType.getString() == "C") {
         ExecType = "Expired";
-    }
-    else if (execType.getString() == "F")
-    {
+    } else if (execType.getString() == "F") {
         ExecType = "Trade";
-    }
-    else if (execType.getString() == "I")
-    {
+    } else if (execType.getString() == "I") {
         ExecType = "Order Status";
     }
 
     // OrderStatus String
     std::string OrderStatus = "Unknown";
-    if (ordStatus.getString() == "0")
-    {
+    if (ordStatus.getString() == "0") {
         OrderStatus = "New";
-    }
-    else if (ordStatus.getString() == "1")
-    {
+    } else if (ordStatus.getString() == "1") {
         OrderStatus = "Partially filled";
-    }
-    else if (ordStatus.getString() == "2")
-    {
+    } else if (ordStatus.getString() == "2") {
         OrderStatus = "Filled";
-    }
-    else if (ordStatus.getString() == "8")
-    {
+    } else if (ordStatus.getString() == "8") {
         OrderStatus = "Rejected";
-    }
-    else if (ordStatus.getString() == "4")
-    {
+    } else if (ordStatus.getString() == "4") {
         OrderStatus = "Cancelled";
-    }
-    else if (ordStatus.getString() == "C")
-    {
+    } else if (ordStatus.getString() == "C") {
         OrderStatus = "Expired";
     }
 
     // log
     std::cout << "--- < 8 > ---- ExecutionReport --------" << std::endl;
-    std::cout
-        << "   37 OrderID        : " << orderID << std::endl
-        << "   41 origClOrdID    : " << origClOrdID << std::endl
-        << "   11 ClOrdID        : " << clOrdID << std::endl
-        << "  911 TotNumReports  : " << totNumReports << std::endl
-        << "  150 ExecType       : " << execType << "  " << ExecType << std::endl
-        << "   39 OrderStatus    : " << ordStatus << "  " << OrderStatus << std::endl
-        << "   55 Symbol         : " << symbol << std::endl
-        << "   54 Side           : " << side << std::endl
-        << "   38 OrderQty       : " << orderQty << std::endl
-        << "   40 OrdType        : " << ordType << std::endl
-        << "   44 Price          : " << price << std::endl
-        << "   99 StopPx         : " << stopPx << std::endl
-        << "   59 TimeInForce    : " << timeInForce << std::endl
-        << "  126 ExpireTime     : " << expireTime << std::endl
-        << "  151 LeavesQty      : " << leavesQty << std::endl
-        << "   14 CumQty         : " << cumQty << std::endl
-        << "   32 LastQty        : " << lastQty << std::endl
-        << "    6 AvgPx          : " << avgPx << std::endl
-        << "   60 TransactTime   : " << transactTime << std::endl
-        << "   58 Text           : " << text << std::endl
-        << "  103 OrdRejReason   : " << ordRejReason << std::endl
-        << "  721 PosMaintRptID  : " << posMaintRptID << std::endl
-        << "  584 MassStatusReqID: " << massStatusReqID << std::endl
-        << std::endl;
+    std::cout << "   37 OrderID        : " << orderID << std::endl
+              << "   41 origClOrdID    : " << origClOrdID << std::endl
+              << "   11 ClOrdID        : " << clOrdID << std::endl
+              << "  911 TotNumReports  : " << totNumReports << std::endl
+              << "  150 ExecType       : " << execType << "  " << ExecType << std::endl
+              << "   39 OrderStatus    : " << ordStatus << "  " << OrderStatus << std::endl
+              << "   55 Symbol         : " << symbol << std::endl
+              << "   54 Side           : " << side << std::endl
+              << "   38 OrderQty       : " << orderQty << std::endl
+              << "   40 OrdType        : " << ordType << std::endl
+              << "   44 Price          : " << price << std::endl
+              << "   99 StopPx         : " << stopPx << std::endl
+              << "   59 TimeInForce    : " << timeInForce << std::endl
+              << "  126 ExpireTime     : " << expireTime << std::endl
+              << "  151 LeavesQty      : " << leavesQty << std::endl
+              << "   14 CumQty         : " << cumQty << std::endl
+              << "   32 LastQty        : " << lastQty << std::endl
+              << "    6 AvgPx          : " << avgPx << std::endl
+              << "   60 TransactTime   : " << transactTime << std::endl
+              << "   58 Text           : " << text << std::endl
+              << "  103 OrdRejReason   : " << ordRejReason << std::endl
+              << "  721 PosMaintRptID  : " << posMaintRptID << std::endl
+              << "  584 MassStatusReqID: " << massStatusReqID << std::endl
+              << std::endl;
 }
 /* 150 ExecType
                 0 = New;           ExecType_NEW

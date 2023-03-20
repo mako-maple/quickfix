@@ -9,6 +9,7 @@
 #include <string>
 
 #include "./Market.h"
+#include "./Trade.h"
 #include "quickfix/Application.h"
 #include "quickfix/MessageCracker.h"
 #include "quickfix/Mutex.h"
@@ -29,9 +30,23 @@
 const char SessionTypeQUOTE[] = "QUOTE";
 const char SessionTypeTRADE[] = "TRADE";
 
+// counter
 const int StatusNone  = 0;  // 未カウント
 const int StatusCount = 1;  // カウント中
 const int StatusTrade = 2;  // 取引中
+
+// trade
+const int TypeNew    = 1;  // 新規
+const int TypeSettle = 2;  // 決済
+const int TypeStop   = 3;  // STOP
+
+const int TradeStatusSend      = 0;  // 送信
+const int TradeStatusOrder     = 1;  // 注文中
+const int TradeStatusReject    = 2;  // 無効
+const int TradeStatusExpired   = 3;  // 期限切れ
+const int TradeStatusCanceled  = 4;  // キャンセル
+const int TradeStatusParFilled = 5;  // 部分約定
+const int TradeStatusFilled    = 6;  // 全部約定
 
 class Application : public FIX::Application, public FIX::MessageCracker {
 public:
@@ -60,20 +75,21 @@ private:
     std::string SYMBOL_NAME = "";  // 取引対象通貨の名称
 
     // 設定値
-    unsigned int HISTORY = 0;   // 保持するマーケット情報履歴数
-    unsigned int HISTSEC = 0;   // 履歴の開始-終了秒差が指定値以下なら新規注文実行（閑散とした市場には参入しない）
-    unsigned int SPREAD = 0;    // 履歴の平均SPREADが指定値以下なら新規注文実行（荒れた市場には参入しない）
-    unsigned int SIZE = 0;      // 通貨取引単位（$100,000 USD の売買なら 100000 を指定）
+    unsigned int HISTORY = 0;  // 保持するマーケット情報履歴数
+    unsigned int HISTSEC = 0;  // 履歴の開始-終了秒差が指定値以下なら新規注文実行（閑散とした市場には参入しない）
+    unsigned int SPREAD = 0;  // 履歴の平均SPREADが指定値以下なら新規注文実行（荒れた市場には参入しない）
+    unsigned int SIZE = 0;  // 通貨取引単位（$100,000 USD の売買なら 100000 を指定）
     unsigned int ORDERSEC = 0;  // 新規注文時の有効秒数（指定秒内に確定しなければ注文キャンセル）
 
     // ORDER
-    std::string ORDER_ID      = "";   // 注文の内部ID
-    std::string ORDER_POS_ID  = "";   // 注文のポジションID
-    std::string STOP_ID       = "";   // STOP注文の内部ID
-    std::string SETTLE_ID     = "";   // 決済注文の内部ID
+    std::string ORDER_ID     = "";  // 注文の内部ID
+    std::string ORDER_POS_ID = "";  // 注文のポジションID
+    std::string STOP_ID      = "";  // STOP注文の内部ID
+    std::string SETTLE_ID    = "";  // 決済注文の内部ID
 
     // 市場情報保持用
     std::list<Market> markets;
+    std::list<Trade> trades;
 
     // FIX
     void onCreate(const FIX::SessionID &) {}
@@ -98,11 +114,10 @@ private:
     /* x  */ void SecurityListRequest();
     /* V  */ void MarketDataRequest(/* 55  symbol */ std::string);
     /* D  */ void NewOrderSingle(
-                    /*  54 side  */ const char &, /* Side_BUY = '1', Side_SELL = '2'; */
-                    /*  38 qty   */ const long &,
-                    /*  40 type  */ const char &, /* OrdType_MARKET='1'; OrdType_LIMIT='2'; OrdType_STOP='3'; */
-                    /*  44 px    */ const double &
-                  );
+        /*  54 side  */ const char &, /* Side_BUY = '1', Side_SELL = '2'; */
+        /*  38 qty   */ const long &,
+        /*  40 type  */ const char &, /* OrdType_MARKET='1'; OrdType_LIMIT='2'; OrdType_STOP='3'; */
+        /*  44 px    */ const double &);
 
     // --------- --------- --------- --------- --------- --------- ---------
     // tool
@@ -112,6 +127,8 @@ private:
     void showMarketHistory();
     bool checkMarketHistory();
     void newOrder();
+    void showTradeHistory();
+    std::string formatNumber(const int &);
 };
 
 #endif

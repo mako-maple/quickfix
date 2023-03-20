@@ -78,6 +78,7 @@ void Application::run() {
                       << "1) TestRequest" << std::endl
                       << std::endl
                       << "m) Markt List" << std::endl
+                      << "t) Trade List" << std::endl
                       << std::endl
                       << "q) Quit" << std::endl
                       << "Action: " << std::endl;
@@ -87,6 +88,8 @@ void Application::run() {
                 break;
             else if (action == 'm')
                 showMarketHistory();
+            else if (action == 't')
+                showTradeHistory();
             else if (action == '1')
                 TestRequest();
         } catch (std::exception &e) {
@@ -189,4 +192,71 @@ void Application::newOrder() {
 
     // 注文
     NewOrderSingle(side, SIZE, FIX::OrdType_LIMIT, px);
+}
+
+// Trade状態確認
+void Application::showTradeHistory() {
+    std::cout << "    "
+              << " " << std::setw(4) << "TYPE"
+              << " " << std::setw(10) << "状態"
+              << " " << std::setw(2) << "SIDE"
+              << " " << std::setw(10) << "注文数"
+              << " " << std::setw(10) << "約定数"
+              << " " << std::setw(10) << "注文値"
+              << " " << std::setw(10) << "約定値"
+              << " " << std::setw(5) << "ID"
+              << " " << std::setw(5) << "親ID"
+              << " " << std::setw(10) << "取引ID"
+              << " " << std::setw(10) << "PoSID" << std::endl;
+
+    // 履歴を表示
+    for (auto itr = trades.begin(); itr != trades.end(); ++itr) {
+        std::string tp = "";
+        if (itr->type == TypeNew) tp = "新規";
+        if (itr->type == TypeSettle) tp = "決済";
+        if (itr->type == TypeStop) tp = "STOP";
+
+        std::string st = "";
+        if (itr->status == TradeStatusSend) st = "送信";
+        if (itr->status == TradeStatusOrder) st = "注文中";
+        if (itr->status == TradeStatusReject) st = "無効";
+        if (itr->status == TradeStatusExpired) st = "期限切れ";
+        if (itr->status == TradeStatusCanceled) st = "キャンセル";
+        if (itr->status == TradeStatusParFilled) st = "部分約定";
+        if (itr->status == TradeStatusFilled) st = "全部約定";
+
+        std::cout
+            << "    "
+            << " " << std::setw(4) << tp
+            << " " << std::setw(10) << st
+            << " " << std::setw(2) << (itr->side == FIX::Side_BUY ? "買" : "売")
+            << " " << std::setw(10) << std::setprecision(0) << std::right << formatNumber(itr->qty)
+            << " " << std::setw(10) << std::setprecision(0) << std::right << formatNumber(itr->lastQty)
+            << " " << std::setw(10) << std::setprecision(SYMBOL_DIGIT) << itr->px
+            << " " << std::setw(10) << std::setprecision(SYMBOL_DIGIT) << itr->avePx
+            << " " << std::setw(5) << itr->id
+            << " " << std::setw(5) << itr->parentId
+            << " " << std::setw(10) << itr->ordId
+            << " " << std::setw(10) << itr->posId
+            << std::endl;
+    }
+}
+
+// 3桁カンマ区切り
+std::string Application::formatNumber(const int &num) {
+    std::vector<int> sepnum;
+    int number = abs(num);
+    int sgn    = num >= 0 ? 1 : -1;
+
+    while (number / 1000) {
+        sepnum.push_back(number % 1000);
+        number /= 1000;
+    }
+
+    std::stringstream ss;
+    ss << number * sgn;
+    for (std::vector<int>::reverse_iterator i = sepnum.rbegin(); i < sepnum.rend(); i++) {
+        ss << "," << std::setfill('0') << std::setw(3) << *i;
+    }
+    return std::string(ss.str());
 }

@@ -24,6 +24,9 @@ void Application::NewOrderSingle(
     /* 40  */ message.set(FIX::OrdType(type));
     /* 494 */ message.set(FIX::Designation(orderID));
 
+    /* 取引状態保持 */
+    Trade trade(TypeNew, std::stoi(orderID), side, qty, px);
+
     /* 新規注文なら */
     if (type == FIX::OrdType_LIMIT and ORDER_ID == "") {
         ORDER_ID = orderID;
@@ -46,6 +49,10 @@ void Application::NewOrderSingle(
 
         // 決済対象は保持しているポジションからIDを設定
         /* 721 */ message.set(FIX::PosMaintRptID(ORDER_POS_ID));
+
+        /* 取引状態保持 */
+        trade.type     = TypeSettle;
+        trade.parentId = std::stoi(ORDER_ID);
     }
 
     /* STOP注文なら */
@@ -58,12 +65,19 @@ void Application::NewOrderSingle(
 
         // 決済対象は保持しているポジションからIDを設定
         /* 721 */ message.set(FIX::PosMaintRptID(ORDER_POS_ID));
+
+        /* 取引状態保持 */
+        trade.type     = TypeStop;
+        trade.parentId = std::stoi(ORDER_ID);
     }
 
     /* いずれでもなければ何もしない */
     else {
         return;
     }
+
+    // 取引状態追加
+    trades.push_front(trade);
 
     // ステータス設定
     status = StatusTrade;
