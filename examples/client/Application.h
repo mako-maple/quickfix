@@ -21,10 +21,11 @@
 #include "quickfix/fix44/SecurityList.h"                   // < y >
 
 // client -> server
-#include "quickfix/fix44/MarketDataRequest.h"    // < V >
-#include "quickfix/fix44/NewOrderSingle.h"       // < D >
-#include "quickfix/fix44/SecurityListRequest.h"  // < x >
-#include "quickfix/fix44/TestRequest.h"          // < 1 >
+#include "quickfix/fix44/MarketDataRequest.h"       // < V >
+#include "quickfix/fix44/NewOrderSingle.h"          // < D >
+#include "quickfix/fix44/OrderMassStatusRequest.h"  // < AF >
+#include "quickfix/fix44/SecurityListRequest.h"     // < x >
+#include "quickfix/fix44/TestRequest.h"             // < 1 >
 
 // const
 const char SessionTypeQUOTE[] = "QUOTE";
@@ -118,6 +119,7 @@ private:
         /*  38 qty   */ const long &,
         /*  40 type  */ const char &, /* OrdType_MARKET='1'; OrdType_LIMIT='2'; OrdType_STOP='3'; */
         /*  44 px    */ const double &);
+    /* AF */ void OrderMassStatusRequest();
 
     // --------- --------- --------- --------- --------- --------- ---------
     // tool
@@ -129,6 +131,7 @@ private:
     void newOrder();
     void showTradeHistory();
     std::string formatNumber(const int &);
+    void setTradeStatus(const int &, const int &);
 };
 
 #endif

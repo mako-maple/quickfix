@@ -25,12 +25,13 @@ void Application::NewOrderSingle(
     /* 494 */ message.set(FIX::Designation(orderID));
 
     /* 取引状態保持 */
-    Trade trade(TypeNew, std::stoi(orderID), side, qty, px);
+    double pxx = px + (side == FIX::Side_BUY ? -1 : 1);
+    Trade trade(TypeNew, std::stoi(orderID), side, qty, pxx);
 
     /* 新規注文なら */
     if (type == FIX::OrdType_LIMIT and ORDER_ID == "") {
         ORDER_ID = orderID;
-        /* 44  */ message.set(FIX::Price(px));
+        /* 44  */ message.set(FIX::Price(pxx));
 
         // 注文の有効期限をセット（デフォルト30秒後）
         time_t tim = time(NULL);
@@ -42,7 +43,7 @@ void Application::NewOrderSingle(
     /* 決済注文なら */
     else if (type == FIX::OrdType_LIMIT and ORDER_ID != "" and SETTLE_ID == "") {
         SETTLE_ID = orderID;
-        /* 44  */ message.set(FIX::Price(px));
+        /* 44  */ message.set(FIX::Price(pxx));
 
         // 決済注文ならキャンセルするまで有効
         /* 59  */ message.set(FIX::TimeInForce(FIX::TimeInForce_GOOD_TILL_CANCEL));
@@ -86,6 +87,8 @@ void Application::NewOrderSingle(
     SetMessageHeader(message);
     FIX::Session::sendToTarget(message, SessionTypeTRADE);
 
+    std::cout << message.toXML() << std::endl;
+
     // log
     std::cout << "---- < D > ---- NewOrderSingle --------" << std::endl;
     std::cout << "  ID " << orderID
@@ -95,6 +98,8 @@ void Application::NewOrderSingle(
               << "  Px " << px
               << std::endl
               << std::endl;
+
+    OrderMassStatusRequest();
 }
 
 /*

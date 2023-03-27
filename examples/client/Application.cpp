@@ -242,6 +242,17 @@ void Application::showTradeHistory() {
     }
 }
 
+// 取引履歴のステータス変更
+void Application::setTradeStatus(const int &ordId, const int &status) {
+    for (auto itr = trades.begin(); itr != trades.end(); ++itr) {
+        if (itr->ordId == ordId ) {
+            itr->status = status;
+            std::cout << "    ordId:" << ordId << "  Expired" << std::endl;
+            break;
+        }
+    }
+}
+
 // 3桁カンマ区切り
 std::string Application::formatNumber(const int &num) {
     std::vector<int> sepnum;

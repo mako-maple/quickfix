@@ -7,6 +7,7 @@ client_SOURCES = \
   x_SecurityListRequest.cpp \
   y_SecurityList.cpp \
 	D_NewOrderSingle.cpp \
+	AF_OrderMassStatusRequest.cpp \
 	V_MarketDataRequest.cpp \
   W_MarketDataIncrementalRefresh.cpp \
 	Application.h \

@@ -87,6 +87,8 @@ void Application::onMessage(const FIX44::ExecutionReport &message, const FIX::Se
         OrderStatus = "Cancelled";
     } else if (ordStatus.getString() == "C") {
         OrderStatus = "Expired";
+        status = StatusNone;  // カウンタ再セット
+        setTradeStatus(std::stoi(orderID.getString()), TradeStatusExpired);
     }
 
     // log
